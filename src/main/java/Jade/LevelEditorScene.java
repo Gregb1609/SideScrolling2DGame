@@ -3,6 +3,7 @@ package Jade;
 import Renderer.Shader;
 import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
+import util.Time;
 
 import java.awt.event.KeyEvent;
 import java.nio.FloatBuffer;
@@ -86,10 +87,12 @@ public class LevelEditorScene extends Scene{
 
     @Override
     public void update(float dt){
-        camera.position.x-=dt * 150.0f;
+        camera.position.x-=dt * 32.0f;
+        camera.position.y-=dt * 18.0f;
         defaultShader.use();
         defaultShader.uploadMat4f("uProjection",camera.getProjectionMatrix());
         defaultShader.uploadMat4f("uView",camera.getViewMatrix());
+        defaultShader.uploadFloat("uTime", Time.getTime());
 
         glBindVertexArray(vaoID);
 
