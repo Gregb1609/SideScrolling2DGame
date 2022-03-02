@@ -16,7 +16,7 @@ import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
-public class RenderBatch {
+public class RenderBatch implements Comparable<RenderBatch>{
     //vertex personality
     //posX  posY        ColR    ColG    ColB    ColA        texX    texY    texID
     //float,float       float,  float,  float,  float,      float,  float,  float
@@ -41,11 +41,13 @@ public class RenderBatch {
     private int vaoID,vboID;
     private int maxBatchSize;
     private Shader shader;
+    private int zIndex;
 
-    public RenderBatch(int maxBatchSize){
+    public RenderBatch(int maxBatchSize, int zIndex){
         shader= AssetPool.getShader("assets/shaders/default.glsl");
         this.sprites=new SpriteRenderer[maxBatchSize];
         this.maxBatchSize=maxBatchSize;
+        this.zIndex=zIndex;
 
         // 4 verticies quads
 
@@ -104,9 +106,20 @@ public class RenderBatch {
     }
 
     public void render(){
-        //rebuffering all data
-        glBindBuffer(GL_ARRAY_BUFFER,vboID);
-        glBufferSubData(GL_ARRAY_BUFFER,0,vertices);
+
+        boolean rebufferData=false;
+        for(int i=0;i<numSprites;i++){
+            SpriteRenderer spr=sprites[i];
+            if(spr.isDirty()){
+                loadVertexProperties((i));
+                spr.setClean();
+                rebufferData=true;
+            }
+        }
+        if(rebufferData) {//only rebuffer if something has changed and a dirty flag is set
+            glBindBuffer(GL_ARRAY_BUFFER, vboID);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
+        }
 
         //Use shader
         shader.use();
@@ -116,20 +129,15 @@ public class RenderBatch {
             glActiveTexture(GL_TEXTURE0+i+1);
             textures.get(i).bind();
         }
-
         shader.uploadIntArray("uTextures",texSlots);
-
         glBindVertexArray(vaoID);
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
-
         glDrawElements(GL_TRIANGLES,this.numSprites*6,GL_UNSIGNED_INT,0);
-
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
         glBindVertexArray(0);
-
-        for(int i=0;i<textures.size();i++){
+        for(int i=0;i<textures.size();i++) {
             textures.get(i).unbind();
         }
 
@@ -231,4 +239,10 @@ public class RenderBatch {
         return this.textures.contains(tex);
     }
 
+    public int zIndex(){return this.zIndex;}
+
+    @Override
+    public int compareTo(RenderBatch o) {
+        return Integer.compare(this.zIndex,o.zIndex);
+    }
 }
