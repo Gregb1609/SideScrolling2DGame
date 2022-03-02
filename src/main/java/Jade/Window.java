@@ -24,9 +24,9 @@ public class Window {
         this.width = 1920;
         this.height = 1080;
         this.title = "Game Window";
-        r=1;
-        g=1;
-        b=1;
+        r=1f;
+        g=1f;
+        b=1f;
         a=1;
     }
 
@@ -99,6 +99,10 @@ public class Window {
         glfwShowWindow(glfwWindow);
         //This line makes the LWJGL capabilities match those available with the active GLFW.It is very important.
         GL.createCapabilities();
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+
         Window.changeScene(0);
 
     }
