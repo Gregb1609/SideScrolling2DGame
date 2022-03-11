@@ -9,9 +9,12 @@ sourceCompatibility=1.11
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
+    implementation "io.github.spair:imgui-java-app:1.86.3"
+
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 }
@@ -23,6 +26,7 @@ test {
 project.ext.lwjglVersion = "3.3.0"
 project.ext.jomlVersion = "1.10.3"
 project.ext.lwjglNatives = "natives-windows"
+project.ext.imguiVersion = "1.86.3"
 
 dependencies {
     implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
